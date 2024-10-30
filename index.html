@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Restriction Example</title>
+</head>
+<body>
+    <h1>Welcome to the Site</h1>
+    <div id="content">This is restricted content.</div>
+    <script>
+        // Fetch user's IP address
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                const userIP = data.ip;
+                console.log('Your IP address is: ' + userIP);
+
+                // Send IP to the serverless function
+                fetch('/api/send-ip', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ip: userIP }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(data => console.log('Email sent:', data))
+                .catch(error => console.error('Error sending IP:', error));
+            })
+            .catch(error => console.error('Error fetching IP:', error));
+    </script>
+</body>
+</html>
